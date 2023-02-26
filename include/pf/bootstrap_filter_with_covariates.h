@@ -4,7 +4,14 @@
 #include <iostream>
 #include <array>
 #include <vector>
-#include <Eigen/Dense>
+
+#ifdef DROPPINGTHISINRPACKAGE
+    #include <RcppEigen.h>
+    // [[Rcpp::depends(RcppEigen)]]
+#else
+    #include <Eigen/Dense>
+#endif
+
 #include <iostream>
 
 #include "pf_base.h"
@@ -198,10 +205,12 @@ void BSFilterWC<nparts, dimx, dimy, dimcov, resamp_t, float_t,debug>::filter(con
             // overwrite stuff
             m_particles[ii] = newSamp;
 
-	    if constexpr(debug)
-                std::cout << "time: " << m_now << ", transposed sample: " << m_particles[ii].transose() << ", log unnorm weight: " << m_logUnNormWeights[ii] << "\n";
+            #ifndef DROPPINGTHISINRPACKAGE
+	        if constexpr(debug)
+                std::cout << "time: " << m_now << ", transposed sample: " << m_particles[ii].transpose() << ", log unnorm weight: " << m_logUnNormWeights[ii] << "\n";
+            #endif
         }
-        
+
         // compute estimate of log p(y_t|y_{1:t-1}) with log-exp-sum trick
         float_t maxNumer = *std::max_element(m_logUnNormWeights.begin(), m_logUnNormWeights.end()); //because you added log adjustments
         float_t sumExp1(0.0);
@@ -227,9 +236,10 @@ void BSFilterWC<nparts, dimx, dimy, dimcov, resamp_t, float_t,debug>::filter(con
             }
             m_expectations[fId] = numer/weightNormConst;
 
+            #ifndef DROPPINGTHISINRPACKAGE
             if constexpr(debug)
                 std::cout << "transposed expectation " << fId << ": " << m_expectations[fId].transpose() << "\n";
-
+            #endif
 
             fId++;
         }
@@ -240,9 +250,8 @@ void BSFilterWC<nparts, dimx, dimy, dimcov, resamp_t, float_t,debug>::filter(con
 
         // advance time
         m_now += 1;       
-    } 
-    else // m_now == 0
-    {  
+    } else {  // m_now == 0
+        
         // only need to iterate over particles once
         for(size_t ii = 0; ii < nparts; ++ii)
         {
@@ -252,8 +261,10 @@ void BSFilterWC<nparts, dimx, dimy, dimcov, resamp_t, float_t,debug>::filter(con
             m_logUnNormWeights[ii] += logGEv(dat, m_particles[ii], covData);
             m_logUnNormWeights[ii] -= logQ1Ev(m_particles[ii], dat, covData);
 
+            #ifndef DROPPINGTHISINRPACKAGE
             if constexpr(debug)
                 std::cout << "time: " << m_now << ", transposed sample: " << m_particles[ii].transpose() << ", log unnorm weight: " << m_logUnNormWeights[ii] << "\n";
+            #endif
 
         }
        
