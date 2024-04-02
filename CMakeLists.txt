@@ -5,10 +5,11 @@ project("pf" VERSION 1.0.1
              HOMEPAGE_URL "https://github.com/tbrown122387/pf")
 
 include(GNUInstallDirs)
+include(cmake/conan.cmake)
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-find_package(Boost 1.65.1 REQUIRED)
-find_package(Catch2 3 REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
+find_package(Boost REQUIRED)
+find_package(Catch2 REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(
@@ -18,7 +19,7 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME} 
     INTERFACE 
         Eigen3::Eigen 
-        ${Boost_LIBRARIES}
+        Boost::boost
 	Catch2::Catch2WithMain)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
