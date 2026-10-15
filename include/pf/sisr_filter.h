@@ -2,6 +2,7 @@
 #define SISR_FILTER_H
 
 #include <array>
+#include <iostream>
 
 #ifdef DROPPINGTHISINRPACKAGE
 #include <RcppEigen.h>
@@ -241,7 +242,6 @@ void SISRFilter<nparts, dimx, dimy, resamp_t, float_t, debug>::filter(
 
     // calculate expectations before you resample
     unsigned int fId(0);
-    float_t weightNormConst(0.0);
     for (auto &h : fs) { // iterate over all functions
 
       Mat testOut = h(m_particles[0]);
@@ -278,7 +278,6 @@ void SISRFilter<nparts, dimx, dimy, resamp_t, float_t, debug>::filter(
   {
 
     // only need to iterate over particles once
-    float_t sumWts(0.0);
     for (size_t ii = 0; ii < nparts; ++ii) {
       // sample particles
       m_particles[ii] = q1Samp(data);
@@ -578,7 +577,6 @@ void SISRFilterCRN<nparts, dimx, dimy, dimu, dimur, resamp_t, float_t, debug>::
 
     // calculate expectations before you resample
     unsigned int fId(0);
-    float_t weightNormConst(0.0);
     for (auto &h : fs) { // iterate over all functions
 
       Mat testOut = h(m_particles[0]);
@@ -615,7 +613,6 @@ void SISRFilterCRN<nparts, dimx, dimy, dimu, dimur, resamp_t, float_t, debug>::
   {
 
     // only need to iterate over particles once
-    float_t sumWts(0.0);
     for (size_t ii = 0; ii < nparts; ++ii) {
       // sample particles
       m_particles[ii] = Xi1(Uarr[ii], data);
